@@ -1,0 +1,22 @@
+{
+  "name": "scrollproof",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Objective scroll-animation testing: scrolls a site, captures animation states, reports exact scroll positions where transitions break.",
+  "bin": {
+    "scrollproof": "engine/cli.mjs"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "playwright-core": "^1.48.0",
+    "scrollproof-workspace": "file:../.."
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheBiggyBang1/ScrollProof.git"
+  }
+}

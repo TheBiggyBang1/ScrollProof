@@ -1,0 +1,15 @@
+{
+  "name": "scrollproof-workspace",
+  "private": true,
+  "type": "module",
+  "description": "Dev workspace for the ScrollProof Claude Code plugin: demo site + end-to-end tests.",
+  "scripts": {
+    "setup": "npm install && npm install --prefix plugins/scrollproof",
+    "demo": "node demo/serve.mjs",
+    "audit:demo": "node plugins/scrollproof/engine/cli.mjs http://localhost:4173/broken.html",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "gsap": "^3.12.5"
+  }
+}

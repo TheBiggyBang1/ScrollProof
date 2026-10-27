@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clean scroll demo</title>
+<link rel="stylesheet" href="/demo.css">
+</head>
+<body>
+  <!-- Starting state hidden in CSS, so nothing flashes before the intro. -->
+  <section class="hero">
+    <h1 class="intro-title">Done right.</h1>
+    <p class="lede">The same ideas, without the bugs.</p>
+    <img src="/img/photo.svg?w=640&h=360&delay=300" width="640" height="360" alt="Hero artwork">
+  </section>
+
+  <section class="features">
+    <h2>Features</h2>
+    <div class="cards">
+      <div class="card">Fast</div>
+      <div class="card">Smooth</div>
+      <div class="card">Accessible</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="panel fade">IntersectionObserver reveal, threshold 0.15</div>
+    <div class="panel fade" style="height: 1100px">Tall reveal that still appears</div>
+  </section>
+
+  <!-- Images reserve their space. -->
+  <section>
+    <img src="/img/photo.svg?w=1200&h=800&delay=300" width="1200" height="800" loading="lazy" alt="Lazy artwork" style="width: 900px; height: auto">
+  </section>
+
+  <section class="parallax">
+    <img class="parallax-img" src="/img/photo.svg?w=1200&h=800" width="1200" height="800" alt="Parallax artwork">
+  </section>
+
+  <section class="pin-clean">
+    <div class="pin-panel">Pinned panel</div>
+  </section>
+
+  <section class="sd">
+    <div class="sd-bar"></div>
+  </section>
+
+  <section class="outro">
+    <h2 class="outro-title">Outro</h2>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-logo">SP</div>
+  </footer>
+
+  <script src="/vendor/gsap.min.js"></script>
+  <script src="/vendor/ScrollTrigger.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.fromTo('.intro-title', { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.8 });
+
+    gsap.utils.toArray('.card').forEach((card) => {
+      gsap.from(card, { opacity: 0, y: 60, duration: 0.5, scrollTrigger: { trigger: card, start: 'top 85%' } });
+    });
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible'));
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.fade').forEach((el) => io.observe(el));
+
+    gsap.fromTo('.parallax-img', { yPercent: -15 }, { yPercent: 15, ease: 'none', scrollTrigger: { trigger: '.parallax', start: 'top bottom', end: 'bottom top', scrub: true } });
+
+    gsap.to('.pin-clean .pin-panel', { xPercent: 60, ease: 'none', scrollTrigger: { trigger: '.pin-clean', start: 'top top', end: '+=800', pin: true, scrub: true } });
+
+    gsap.to('.outro-title', { scale: 1.5, ease: 'none', scrollTrigger: { trigger: '.outro', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+
+    gsap.from('.footer-logo', { rotate: -180, opacity: 0, scrollTrigger: { trigger: '.site-footer', start: 'top bottom' } });
+
+    window.addEventListener('wheel', () => {}, { passive: true });
+  </script>
+</body>
+</html>

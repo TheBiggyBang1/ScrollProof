@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Broken scroll demo</title>
+<link rel="stylesheet" href="/demo.css">
+</head>
+<body>
+  <!-- BUG flash-of-content: h1 is painted, then hidden by gsap.from() on window load -->
+  <section class="hero">
+    <h1>Make it move.</h1>
+    <p class="lede">A scroll story with a few things quietly broken.</p>
+    <img src="/img/photo.svg?w=640&h=360&delay=700" width="640" height="360" alt="Hero artwork">
+  </section>
+
+  <!-- CONTROL: correct GSAP reveals -->
+  <section class="features">
+    <h2>Features</h2>
+    <div class="cards">
+      <div class="card">Fast</div>
+      <div class="card">Smooth</div>
+      <div class="card">Accessible</div>
+    </div>
+  </section>
+
+  <!-- BUG from-conflict: two scrubbed from() tweens on the same property -->
+  <section class="conflict">
+    <div class="conflict-box">I fade in… and then vanish.</div>
+  </section>
+
+  <!-- BUG never-revealed: IntersectionObserver threshold 1.0 on an element taller than the viewport -->
+  <section class="io">
+    <div class="reveal small">Small reveal (works)</div>
+    <div class="reveal tall">Tall reveal — can never be 100% visible, so it never appears.</div>
+  </section>
+
+  <!-- BUG layout-shift + stale-trigger-positions: lazy image without width/height -->
+  <section class="lazy">
+    <img src="/img/photo.svg?w=1200&h=800&delay=300" loading="lazy" alt="Lazy artwork">
+  </section>
+
+  <!-- BUG layout-shift: a promo block is injected above the text while it is on screen -->
+  <section class="news">
+    <div class="news-slot"></div>
+    <p class="news-text">Reading this paragraph? It is about to jump down.</p>
+  </section>
+
+  <!-- BUG jank + forced-reflow: heavy scroll handler -->
+  <section class="heavy">
+    <h2>Heavy list</h2>
+    <ul class="items"></ul>
+  </section>
+
+  <!-- BUG layout-property-animation: scrubbing width -->
+  <section class="progress">
+    <div class="progress-track"><div class="progress-fill"></div></div>
+  </section>
+
+  <!-- BUG pin-transformed-ancestor + markers-left-on -->
+  <div class="tilt-wrap">
+    <section class="pin-me">
+      <div class="pin-panel">Pinned panel</div>
+    </section>
+  </div>
+
+  <!-- BUG duplicate-trigger: setup code runs twice -->
+  <section class="quote-section">
+    <blockquote class="quote">“Motion is meaning.”</blockquote>
+  </section>
+
+  <!-- BUG nested-scrolltrigger -->
+  <section class="nested">
+    <div class="nested-dot"></div>
+  </section>
+
+  <!-- CONTROL: CSS scroll-driven animation using transform -->
+  <section class="sd">
+    <div class="sd-bar"></div>
+  </section>
+
+  <!-- BUG incomplete-scrub: scrub ends below the bottom of the page -->
+  <section class="outro">
+    <h2 class="outro-title">Outro</h2>
+  </section>
+
+  <!-- BUG unreachable-trigger: start "top top" on a short footer -->
+  <footer class="site-footer">
+    <div class="footer-logo">SP</div>
+  </footer>
+
+  <script src="/vendor/gsap.min.js"></script>
+  <script src="/vendor/ScrollTrigger.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Flash: animate the hero only after every image has loaded.
+    window.addEventListener('load', () => {
+      gsap.from('.hero h1', { opacity: 0, y: 40, duration: 0.8 });
+    });
+
+    // Control: one tween per card.
+    gsap.utils.toArray('.card').forEach((card) => {
+      gsap.from(card, { opacity: 0, y: 60, duration: 0.5, scrollTrigger: { trigger: card, start: 'top 85%' } });
+    });
+
+    // Two from() tweens owning opacity on the same element.
+    gsap.from('.conflict-box', { opacity: 0, scrollTrigger: { trigger: '.conflict-box', start: 'top 90%', end: 'top 60%', scrub: true } });
+    gsap.from('.conflict-box', { opacity: 0, scrollTrigger: { trigger: '.conflict-box', start: 'top 50%', end: 'top 20%', scrub: true } });
+
+    // IntersectionObserver reveal with threshold 1.0.
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible'));
+    }, { threshold: 1 });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+    // Inject a promo above the paragraph shortly after it scrolls into view.
+    new IntersectionObserver(([e], obs) => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      setTimeout(() => (document.querySelector('.news-slot').innerHTML = '<div class="promo">Sponsored</div>'), 100);
+    }, { threshold: 0.5 }).observe(document.querySelector('.news'));
+
+    // Heavy scroll handler: layout thrashing plus a busy loop while the list is on screen.
+    const list = document.querySelector('.items');
+    for (let i = 0; i < 40; i++) list.insertAdjacentHTML('beforeend', `<li>Item ${i + 1}</li>`);
+    const items = [...list.children];
+    function thrashOnScroll() {
+      const box = list.getBoundingClientRect();
+      if (box.bottom < 0 || box.top > innerHeight) return;
+      for (const item of items) item.style.paddingLeft = (item.offsetTop % 7) + 'px';
+      const t = performance.now();
+      while (performance.now() - t < 45) {}
+    }
+    window.addEventListener('scroll', thrashOnScroll);
+
+    // Scrubbing a layout property.
+    gsap.to('.progress-fill', { width: '100%', ease: 'none', scrollTrigger: { trigger: '.progress', start: 'top bottom', end: 'bottom top', scrub: true } });
+
+    // Pin inside a transformed wrapper, with debug markers left on.
+    gsap.to('.pin-panel', {
+      xPercent: 60,
+      ease: 'none',
+      scrollTrigger: { trigger: '.pin-me', start: 'top top', end: '+=800', pin: true, scrub: true, markers: true },
+    });
+
+    // Setup that runs twice (think React StrictMode without cleanup).
+    function initQuote() {
+      gsap.from('.quote', { opacity: 0, y: 30, duration: 0.6, scrollTrigger: { trigger: '.quote', start: 'top 80%' } });
+    }
+    initQuote();
+    initQuote();
+
+    // A trigger whose element is removed afterwards (route change without kill()).
+    const banner = document.createElement('div');
+    banner.className = 'temp-banner';
+    document.body.append(banner);
+    ScrollTrigger.create({ trigger: banner, start: 'top center', onEnter: () => {} });
+    banner.remove();
+
+    // scrollTrigger on a child tween of a timeline.
+    const tl = gsap.timeline();
+    tl.to('.nested-dot', { x: 300, scrollTrigger: { trigger: '.nested', start: 'top 80%', end: 'bottom 20%', scrub: true } });
+
+    // Scrub that can only be completed if the page were taller.
+    gsap.to('.outro-title', { scale: 2, ease: 'none', scrollTrigger: { trigger: '.outro', start: 'top bottom', end: 'bottom top', scrub: true } });
+
+    // Footer animation that waits for the footer to reach the top of the viewport.
+    gsap.from('.footer-logo', { rotate: -180, opacity: 0, scrollTrigger: { trigger: '.site-footer', start: 'top top' } });
+
+    // A wheel listener that blocks scrolling.
+    window.addEventListener('wheel', () => {}, { passive: false });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "scrollproof",
+  "version": "0.1.0",
+  "description": "Objective scroll-animation testing for creative developers: scrolls a site with Playwright, records Chrome performance traces and GSAP/ScrollTrigger state, and reports the exact scroll positions where transitions break.",
+  "author": {
+    "name": "TheBiggyBang1",
+    "url": "https://github.com/TheBiggyBang1"
+  },
+  "license": "MIT",
+  "keywords": [
+    "gsap",
+    "scrolltrigger",
+    "animation",
+    "scroll",
+    "playwright",
+    "performance"
+  ],
+  "homepage": "https://github.com/TheBiggyBang1/ScrollProof",
+  "repository": "https://github.com/TheBiggyBang1/ScrollProof"
+}

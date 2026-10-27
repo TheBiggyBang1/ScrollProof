@@ -1,0 +1,35 @@
+{
+  "name": "scrollproof",
+  "owner": {
+    "name": "TheBiggyBang1",
+    "url": "https://github.com/TheBiggyBang1"
+  },
+  "metadata": {
+    "description": "Objective testing for scroll-driven animations.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "scrollproof",
+      "source": "./plugins/scrollproof",
+      "description": "Scrolls through a site, captures animation states, detects broken transitions and reports the exact scroll positions where problems occur.",
+      "version": "0.1.0",
+      "category": "development",
+      "keywords": [
+        "gsap",
+        "scrolltrigger",
+        "animation",
+        "scroll",
+        "playwright",
+        "performance",
+        "creative-dev"
+      ],
+      "author": {
+        "name": "TheBiggyBang1"
+      },
+      "homepage": "https://github.com/TheBiggyBang1/ScrollProof",
+      "repository": "https://github.com/TheBiggyBang1/ScrollProof",
+      "license": "MIT"
+    }
+  ]
+}
