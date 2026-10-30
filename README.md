@@ -6,7 +6,7 @@ Objective testing for scroll-driven animations — a Claude Code plugin for crea
 /scrollproof:audit localhost:3000
 ```
 
-ScrollProof scrolls through your site like a user, captures every animation's state at each scroll position, records a Chrome performance trace, and reads GSAP/ScrollTrigger's internals. It reports **what broke, the exact scroll position, the element, and the line of code** behind it — then Claude explains the cause and proposes the fix.
+ScrollProof scrolls through your site like a real user, captures every animation's state at each scroll position, records a Chrome performance trace, and reads GSAP/ScrollTrigger's internals. It reports **what broke, the exact scroll position, the element, and the line of code** behind it — then Claude explains the cause and proposes the fix.
 
 It does not create animations. It tests them.
 
